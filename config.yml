@@ -12,7 +12,7 @@ AutoUploadToAiarena: True
 
 UseData: False
 Debug: False
-GameStep: 2
+GameStep: 6
 DebugGameStep: 2
 
 DebugOptions:
