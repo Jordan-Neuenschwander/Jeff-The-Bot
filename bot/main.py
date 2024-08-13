@@ -60,10 +60,11 @@ class JeffTheBot(AresBot):
         if len(self.townhalls) > 0 and self.townhalls.first.energy >= 50:
             if (self.structures(UnitTypeId.CYBERNETICSCORE).ready
                     and not self.structures(UnitTypeId.CYBERNETICSCORE).first.is_idle
-                    and BuffId.CHRONOBOOSTENERGYCOST not in self.structures(UnitTypeId.CYBERNETICSCORE).first.buffs):
+                    and BuffId.CHRONOBOOSTENERGYCOST not in self.structures(UnitTypeId.CYBERNETICSCORE).first.buffs
+                    and self.time < 2 * 60 + 30):
 
                 self.townhalls.first(AbilityId.EFFECT_CHRONOBOOSTENERGYCOST,
-                                      self.structures(UnitTypeId.CYBERNETICSCORE).first)
+                                     self.structures(UnitTypeId.CYBERNETICSCORE).first)
 
             elif UpgradeId.WARPGATERESEARCH in self.state.upgrades:
                 for gate in self.structures(UnitTypeId.WARPGATE):
@@ -89,7 +90,8 @@ class JeffTheBot(AresBot):
                     gate(AbilityId.MORPH_WARPGATE)
 
         elif (self.structures(UnitTypeId.CYBERNETICSCORE).ready
-              and not self.structures(UnitTypeId.GATEWAY).empty):
+              and not self.structures(UnitTypeId.GATEWAY).empty
+              and self.time < 3 * 60):
             for gate in self.structures(UnitTypeId.GATEWAY):
                 if gate.is_idle:
                     gate.train(UnitTypeId.STALKER)
@@ -150,10 +152,7 @@ class JeffTheBot(AresBot):
             unit.move(self.mediator.get_enemy_third)
 
         # Assign Stalkers to Roles
-        if unit.type_id == UnitTypeId.STALKER and self.mediator.get_units_from_role(role=UnitRole.DEFENDING).empty:
-            self.mediator.assign_role(tag=unit.tag, role=UnitRole.DEFENDING)
-            unit.move(self.mediator.get_units_from_role(role=UnitRole.GATHERING).random.position)
-        elif unit.type_id == UnitTypeId.STALKER:
+        if unit.type_id == UnitTypeId.STALKER:
             self.mediator.assign_role(tag=unit.tag, role=UnitRole.ATTACKING)
             unit.move(self.mediator.get_enemy_third)
 
