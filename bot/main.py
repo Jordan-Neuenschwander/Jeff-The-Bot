@@ -7,7 +7,7 @@ from ares.behaviors.combat import CombatManeuver
 from ares.behaviors.combat.group import AMoveGroup, StutterGroupBack
 from ares.behaviors.combat.individual import StutterUnitBack, AMove, StutterUnitForward, AttackTarget
 from ares.consts import UnitRole, UnitTreeQueryType
-from ares.behaviors.macro import Mining, BuildStructure
+from ares.behaviors.macro import Mining, BuildStructure, RestorePower
 
 from sc2.ids.unit_typeid import UnitTypeId
 from sc2.ids.upgrade_id import UpgradeId
@@ -34,6 +34,7 @@ class JeffTheBot(AresBot):
         await super(JeffTheBot, self).on_step(iteration)
 
         self.register_behavior(Mining(workers_per_gas=(max(0, int((self.supply_workers - 16) // 2)))))
+        self.register_behavior(RestorePower())
 
         if (len(self.structures(UnitTypeId.PYLON)) >= 3
                 and self.supply_left < 8
@@ -42,9 +43,11 @@ class JeffTheBot(AresBot):
             await self.build(UnitTypeId.PYLON, near=self.start_location)
 
         # Build Probes Until 1 Base Saturated and one worker to build proxy (23 Workers)
-        if (self.supply_workers + self.already_pending(UnitTypeId.PROBE) < 23
+        if ((self.supply_workers + self.already_pending(UnitTypeId.PROBE) < 23
                 and self.can_afford(UnitTypeId.PROBE)
+                and len(self.townhalls) > 0)
                 and self.townhalls.first.is_idle):
+
             self.townhalls.first.train(UnitTypeId.PROBE)
 
         # Start Warpgate Research
@@ -54,12 +57,12 @@ class JeffTheBot(AresBot):
             self.structures(UnitTypeId.CYBERNETICSCORE).first.research(UpgradeId.WARPGATERESEARCH)
 
         # Chrono Warpgate Research and warpgates afterwards
-        if self.townhalls.first.energy >= 50:
+        if len(self.townhalls) > 0 and self.townhalls.first.energy >= 50:
             if (self.structures(UnitTypeId.CYBERNETICSCORE).ready
                     and not self.structures(UnitTypeId.CYBERNETICSCORE).first.is_idle
                     and BuffId.CHRONOBOOSTENERGYCOST not in self.structures(UnitTypeId.CYBERNETICSCORE).first.buffs):
 
-                self.townhalls.random(AbilityId.EFFECT_CHRONOBOOSTENERGYCOST,
+                self.townhalls.first(AbilityId.EFFECT_CHRONOBOOSTENERGYCOST,
                                       self.structures(UnitTypeId.CYBERNETICSCORE).first)
 
             elif UpgradeId.WARPGATERESEARCH in self.state.upgrades:
@@ -103,7 +106,6 @@ class JeffTheBot(AresBot):
             self.mediator.get_units_from_role(role=UnitRole.PROXY_WORKER).first.build(UnitTypeId.GATEWAY,
                                                                                       self.mediator.get_enemy_third.offset(
                                                                                           Point2((-2, -2))))
-
         if self.time > 3 * 60 + 30:
             enemy_units = self.enemy_units
             enemy_structures = self.enemy_structures
