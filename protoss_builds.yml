@@ -13,30 +13,23 @@ BuildSelection: Cycle
 # For each Race / Opponent ID choose a build selection
 BuildChoices:
     # test_123 is active if Debug: True (set via a `config.yml` file)
-    test_123:
-        BotName: Test
-        Cycle:
-            - DummyOpening
-
     Protoss:
         BotName: ProtossRace
         Cycle:
-            - DummyOpening
-
+            - 4Gate
     Random:
         BotName: RandomRace
         Cycle:
-            - DummyOpening
-
+            - 4Gate
     Terran:
         BotName: TerranRace
         Cycle:
-            - DummyOpening
+            - 4Gate
 
     Zerg:
         BotName: ZergRace
         Cycle:
-            - DummyOpening
+            - 4Gate
 
     # Can also use specific opponent ids (overrides race options above)
     a_bot_opponent_id_from_aiarena:
@@ -49,9 +42,26 @@ Builds:
         # Build constant workers till x supply
         ConstantWorkerProductionTill: 0
         OpeningBuildOrder:
-            # Example: ['12 worker', '13 worker', '14 supply', '14 worker', '15 chrono @ nexus',
-            #           '15 worker', '16 gateway']
+            ['14 supply @ ramp',
+             '16 gateway',
+             '17 gas',
+             '18 gas',
+             '19 gateway',
+             '19 core'
+            ]
             # See docs: https://aressc2.github.io/ares-sc2/tutorials.html#build-runner-system
-            []
 
-
+    4Gate:
+      ConstantWorkerProductionTill: 0
+      OpeningBuildOrder:
+        [
+        '14 supply',
+        '15 gateway',
+        '16 chrono @ nexus',
+        '17 gas',
+        '18 gas',
+        '20 gateway',
+        '20 core',
+        '22 pylon @ nexus',
+        '22 gateway'
+        ]

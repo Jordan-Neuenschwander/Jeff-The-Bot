@@ -14,7 +14,7 @@ from typing import Dict, List, Tuple
 
 import yaml
 
-MY_BOT_NAME: str = "MyBotName"
+MY_BOT_NAME: str = "Jeff The Bot"
 ZIPFILE_NAME: str = "bot.zip"
 
 CONFIG_FILE: str = "config.yml"
@@ -239,7 +239,7 @@ if __name__ == "__main__":
 
     # compile the cython code
     print("Compiling cython code...")
-    p = Popen(["poetry", "build"], cwd=f"{ROOT_DIRECTORY}ares-sc2")
+    p = Popen(["poetry", "build"], cwd=f"{ROOT_DIRECTORY}//ares-sc2")
     # makes the process wait, otherwise files get zipped before compile is complete
     p.communicate()
     p_status = p.wait()

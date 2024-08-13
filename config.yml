@@ -3,16 +3,16 @@
 # Can add own unique config options here if desired
 
 # Set custom values here for your bot
-MyBotName: MyBotName
-MyBotRace: Random
+MyBotName: Jeff_The_Bot
+MyBotRace: Protoss
 # setting ture allows auto upload to aiareana (https://aiarena.net/) on push to `main` branch
 # see tutorial on readme before setting to True
-AutoUploadToAiarena: False
+AutoUploadToAiarena: True
 ########################
 
 UseData: False
 Debug: False
-GameStep: 2
+GameStep: 6
 DebugGameStep: 2
 
 DebugOptions:

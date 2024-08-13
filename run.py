@@ -15,12 +15,12 @@ sys.path.append("ares-sc2")
 
 import yaml
 
-from bot.main import MyBot
+from bot.main import JeffTheBot
 from ladder import run_ladder_game
 
 # change if non default setup / linux
 # if having issues with this, modify `map_list` below manually
-MAPS_PATH: str = "C:\\Program Files (x86)\\StarCraft II\\Maps"
+MAPS_PATH: str = "D:\\StarCraft II\\Maps"
 CONFIG_FILE: str = "config.yml"
 MAP_FILE_EXT: str = "SC2Map"
 MY_BOT_NAME: str = "MyBotName"
@@ -42,7 +42,7 @@ def main():
             if MY_BOT_RACE in config:
                 race = Race[config[MY_BOT_RACE].title()]
 
-    bot1 = Bot(race, MyBot(), bot_name)
+    bot1 = Bot(race, JeffTheBot(), bot_name)
 
     if "--LadderServer" in sys.argv:
         # Ladder game started by LadderManager
@@ -72,7 +72,7 @@ def main():
             maps.get(random.choice(map_list)),
             [
                 bot1,
-                Computer(random_race, Difficulty.CheatVision, ai_build=AIBuild.Macro),
+                Computer(random_race, Difficulty.Easy, ai_build=AIBuild.Macro),
             ],
             realtime=False,
         )
