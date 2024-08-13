@@ -88,7 +88,8 @@ class JeffTheBot(AresBot):
                 if gate.is_idle:
                     gate(AbilityId.MORPH_WARPGATE)
 
-        elif self.structures(UnitTypeId.CYBERNETICSCORE).ready and not self.structures(UnitTypeId.GATEWAY).empty:
+        elif (self.structures(UnitTypeId.CYBERNETICSCORE).ready
+              and not self.structures(UnitTypeId.GATEWAY).empty):
             for gate in self.structures(UnitTypeId.GATEWAY):
                 if gate.is_idle:
                     gate.train(UnitTypeId.STALKER)
@@ -106,18 +107,19 @@ class JeffTheBot(AresBot):
             self.mediator.get_units_from_role(role=UnitRole.PROXY_WORKER).first.build(UnitTypeId.GATEWAY,
                                                                                       self.mediator.get_enemy_third.offset(
                                                                                           Point2((-2, -2))))
-        if self.time > 3 * 60 + 30:
-            enemy_units = self.enemy_units
-            enemy_structures = self.enemy_structures
-            stalker_group = self.mediator.get_units_from_role(role=UnitRole.ATTACKING)
 
-            for stalker in stalker_group:
-                stalker_attack = CombatManeuver()
+        enemy_units = self.enemy_units
+        enemy_structures = self.enemy_structures
+        stalker_group = self.mediator.get_units_from_role(role=UnitRole.ATTACKING)
 
-                if not enemy_units.empty:
-                    enemy_in_range = cy_in_attack_range(stalker, enemy_units)
-                    if len(enemy_in_range) > 0:
-                        target: Unit = cy_closest_to(stalker.position, enemy_units)
+        for stalker in stalker_group:
+            stalker_attack = CombatManeuver()
+
+            if not enemy_units.empty:
+                enemy_in_range = cy_in_attack_range(stalker, enemy_units)
+                if len(enemy_in_range) > 0:
+                    target: Unit = cy_closest_to(stalker.position, enemy_units)
+                    if target.type_id != UnitTypeId.LARVA and target.type_id != UnitTypeId.EGG:
                         stalker_attack.add(StutterUnitBack(
                             stalker,
                             target,
@@ -125,16 +127,17 @@ class JeffTheBot(AresBot):
                             self.mediator.get_ground_grid
                         ))
 
-                if not enemy_structures.empty:
-                    target: Unit = cy_closest_to(stalker.position, enemy_structures)
-                    stalker_attack.add(StutterUnitForward(stalker, target))
+            if not enemy_structures.empty:
+                target: Unit = cy_closest_to(stalker.position, enemy_structures)
+                stalker_attack.add(StutterUnitForward(stalker, target))
 
+            if self.time > 3 * 60 + 30:
                 stalker_attack.add(AMove(
                         stalker,
                         self.enemy_start_locations[0]
                     ))
 
-                self.register_behavior(stalker_attack)
+            self.register_behavior(stalker_attack)
 
     async def on_unit_created(self, unit: Unit) -> None:
         await super(JeffTheBot, self).on_unit_created(unit)
