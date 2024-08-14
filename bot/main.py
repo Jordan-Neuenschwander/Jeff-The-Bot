@@ -29,14 +29,14 @@ class JeffTheBot(AresBot):
             specified elsewhere
         """
         super().__init__(game_step_override)
+        self.proxy_pylon: Unit = None
 
     async def on_step(self, iteration: int) -> None:
         await super(JeffTheBot, self).on_step(iteration)
 
         self.register_behavior(Mining(workers_per_gas=(max(0, int((self.supply_workers - 16) // 2)))))
-        self.register_behavior(RestorePower())
 
-        if (len(self.structures(UnitTypeId.PYLON)) >= 3
+        if (self.time > 3 * 60
                 and self.supply_left < 8
                 and self.already_pending(UnitTypeId.PYLON) == 0):
 
@@ -80,8 +80,13 @@ class JeffTheBot(AresBot):
                 abilities = await self.get_available_abilities(gate)
                 if (AbilityId.WARPGATETRAIN_STALKER in abilities
                         and self.can_afford(UnitTypeId.STALKER)):
+                    if self.proxy_pylon is not None:
+                        position = self.mediator.get_enemy_third
+                    elif not self.townhalls.empty:
+                        position = self.townhalls.first.position
+                    else:
+                        position = self.start_location
 
-                    position = self.mediator.get_enemy_third
                     gate.warp_in(UnitTypeId.STALKER, await self.find_placement(AbilityId.WARPGATETRAIN_STALKER, position))
 
         elif UpgradeId.WARPGATERESEARCH in self.state.upgrades and not self.structures(UnitTypeId.GATEWAY).empty:
@@ -109,7 +114,6 @@ class JeffTheBot(AresBot):
             self.mediator.get_units_from_role(role=UnitRole.PROXY_WORKER).first.build(UnitTypeId.GATEWAY,
                                                                                       self.mediator.get_enemy_third.offset(
                                                                                           Point2((-2, -2))))
-
         enemy_units = self.enemy_units
         enemy_structures = self.enemy_structures
         stalker_group = self.mediator.get_units_from_role(role=UnitRole.ATTACKING)
@@ -156,15 +160,30 @@ class JeffTheBot(AresBot):
             self.mediator.assign_role(tag=unit.tag, role=UnitRole.ATTACKING)
             unit.move(self.mediator.get_enemy_third)
 
-    async def on_building_construction_complete(self, unit: Unit) -> None:
-        await super(JeffTheBot, self).on_building_construction_complete(unit)
+    async def on_building_construction_started(self, unit: Unit) -> None:
+        await super(JeffTheBot, self).on_building_construction_started(unit)
+        if (unit.type_id == UnitTypeId.PYLON
+                and self.proxy_pylon is None
+                and unit.distance_to(self.mediator.get_enemy_third) < 20):
+
+            self.proxy_pylon = unit
+
+    async def on_unit_destroyed(self, unit_tag: int) -> None:
+        await super(JeffTheBot, self).on_unit_destroyed(unit_tag)
+
+        if self.proxy_pylon is not None and unit_tag == self.proxy_pylon.tag:
+            self.proxy_pylon = None
+            if not self.mediator.get_units_from_role(role=UnitRole.PROXY_WORKER).empty:
+                pass
+                self.mediator.get_units_from_role(role=UnitRole.PROXY_WORKER).first.build(
+                    UnitTypeId.PYLON, self.mediator.get_enemy_third
+                )
+
+    # async def on_building_construction_complete(self, unit: Unit) -> None:
+    #     await super(JeffTheBot, self).on_building_construction_complete(unit)
 
         # custom on_building_construction_complete logic here ...
 
-    """
-    Can use `python-sc2` hooks as usual, but make a call the inherited method in the superclass
-    Examples:
-    """
     # async def on_start(self) -> None:
     #     await super(MyBot, self).on_start()
 
@@ -176,11 +195,8 @@ class JeffTheBot(AresBot):
     #     # custom on_end logic here ...
     #
 
-    # async def on_unit_destroyed(self, unit_tag: int) -> None:
-    #     await super(MyBot, self).on_unit_destroyed(unit_tag)
-    #
-    #     # custom on_unit_destroyed logic here ...
-    #
+
+
     # async def on_unit_took_damage(self, unit: Unit, amount_damage_taken: float) -> None:
     #     await super(MyBot, self).on_unit_took_damage(unit, amount_damage_taken)
     #

@@ -60,8 +60,8 @@ Builds:
         '16 chrono @ nexus',
         '17 gas',
         '18 gas',
-        '20 gateway',
+        '19 gateway',
         '20 core',
         '22 pylon @ nexus',
-        '22 gateway'
+        '28 gateway',
         ]
