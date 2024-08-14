@@ -174,7 +174,6 @@ class JeffTheBot(AresBot):
         if self.proxy_pylon is not None and unit_tag == self.proxy_pylon.tag:
             self.proxy_pylon = None
             if not self.mediator.get_units_from_role(role=UnitRole.PROXY_WORKER).empty:
-                pass
                 self.mediator.get_units_from_role(role=UnitRole.PROXY_WORKER).first.build(
                     UnitTypeId.PYLON, self.mediator.get_enemy_third
                 )
