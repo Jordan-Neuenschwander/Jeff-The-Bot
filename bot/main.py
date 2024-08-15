@@ -5,7 +5,7 @@ from cython_extensions import cy_closest_to, cy_center, cy_in_attack_range
 from ares import AresBot
 from ares.behaviors.combat import CombatManeuver
 from ares.behaviors.combat.group import AMoveGroup, StutterGroupBack
-from ares.behaviors.combat.individual import StutterUnitBack, AMove, StutterUnitForward, AttackTarget
+from ares.behaviors.combat.individual import StutterUnitBack, AMove, StutterUnitForward, AttackTarget, PathUnitToTarget
 from ares.consts import UnitRole, UnitTreeQueryType
 from ares.behaviors.macro import Mining, BuildStructure, RestorePower
 
@@ -136,10 +136,17 @@ class JeffTheBot(AresBot):
             if not enemy_structures.empty:
                 target: Unit = cy_closest_to(stalker.position, enemy_structures)
                 stalker_attack.add(StutterUnitForward(stalker, target))
+            elif (stalker.distance_to(self.enemy_start_locations[0]) < 15
+                  and len(self.mediator.get_units_from_role(role=UnitRole.SCOUTING)) < 1):
+
+                self.mediator.assign_role(tag=stalker.tag, role=UnitRole.SCOUTING)
+                for i, location in enumerate(self.expansion_locations_list):
+                    stalker.move(location, queue=i != 0)
 
             if self.time > 3 * 60 + 30:
-                stalker_attack.add(AMove(
+                stalker_attack.add(PathUnitToTarget(
                         stalker,
+                        self.mediator.get_ground_grid,
                         self.enemy_start_locations[0]
                     ))
 
