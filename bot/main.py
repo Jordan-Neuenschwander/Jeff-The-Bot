@@ -124,7 +124,7 @@ class JeffTheBot(AresBot):
             if not enemy_units.empty:
                 enemy_in_range = cy_in_attack_range(stalker, enemy_units)
                 if len(enemy_in_range) > 0:
-                    target: Unit = cy_closest_to(stalker.position, enemy_units)
+                    target: Unit = cy_closest_to(stalker.position, enemy_in_range)
                     if target.type_id != UnitTypeId.LARVA and target.type_id != UnitTypeId.EGG:
                         stalker_attack.add(StutterUnitBack(
                             stalker,
@@ -143,7 +143,7 @@ class JeffTheBot(AresBot):
                 else:
                     stalker_attack.add(StutterUnitBack(stalker, target))
 
-            elif (stalker.distance_to(self.enemy_start_locations[0]) < 15
+            elif (stalker.distance_to(self.enemy_start_locations[0]) < 20
                   and len(self.mediator.get_units_from_role(role=UnitRole.SCOUTING)) < 1):
 
                 self.mediator.assign_role(tag=stalker.tag, role=UnitRole.SCOUTING)
