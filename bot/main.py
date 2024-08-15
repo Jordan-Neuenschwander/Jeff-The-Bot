@@ -135,7 +135,14 @@ class JeffTheBot(AresBot):
 
             if not enemy_structures.empty:
                 target: Unit = cy_closest_to(stalker.position, enemy_structures)
-                stalker_attack.add(StutterUnitForward(stalker, target))
+                if (target.type_id != UnitTypeId.PHOTONCANNON
+                        or target.type_id != UnitTypeId.SPINECRAWLER
+                        or target.type_id != UnitTypeId.BUNKER
+                        or target.type_id != UnitTypeId.PLANETARYFORTRESS):
+                    stalker_attack.add(StutterUnitForward(stalker, target))
+                else:
+                    stalker_attack.add(StutterUnitBack(stalker, target))
+
             elif (stalker.distance_to(self.enemy_start_locations[0]) < 15
                   and len(self.mediator.get_units_from_role(role=UnitRole.SCOUTING)) < 1):
 
